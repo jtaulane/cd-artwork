@@ -1,0 +1,8 @@
+<h1>Select Album</h1>
+
+@for (album of albums(); track album.discNumber) {
+  <button (click)="selectDisc(album.discNumber)">
+    Disc {{album.discNumber}} -
+    {{album.title}}
+  </button>
+}
