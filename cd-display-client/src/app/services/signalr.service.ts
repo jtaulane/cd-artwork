@@ -66,6 +66,11 @@ export class SignalrService {
       this.initializeConnection();
     }
 
+    if (this.hubConnection!.state === 'Connected') {
+      console.log('SignalR already connected');
+      return Promise.resolve();
+    }
+
     return this.hubConnection!.start().then(() => {
       console.log('SignalR connected successfully');
       this.connectedSubject.next(true);

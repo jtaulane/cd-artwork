@@ -24,7 +24,8 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .DisallowCredentials(); // SignalR doesn't use credentials for AllowAnyOrigin
     });
 });
 

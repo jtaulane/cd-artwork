@@ -54,37 +54,38 @@ export class Display implements OnInit, OnDestroy {
   }
 
   private startSignalR(): void {
-    // Connect to SignalR if not already connected
-    if (!this.signalrService.isConnected()) {
-      this.signalrService.start()
-        .then(() => {
-          this.connectionStatus.set('connected');
-          console.log('SignalR connected');
-        })
-        .catch((error) => {
-          console.error('Failed to connect to SignalR:', error);
-          this.connectionStatus.set('disconnected');
-        });
-    } else {
-      this.connectionStatus.set('connected');
-    }
+    // Subscribe to connection state FIRST before starting
+    this.signalrService.getConnectionState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((connected) => {
+        this.connectionStatus.set(connected ? 'connected' : 'disconnected');
+        console.log('Connection status changed:', connected ? 'connected' : 'disconnected');
+      });
 
     // Listen for album changes from control page
     this.signalrService.getAlbumChanged()
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
         if (event) {
+          console.log('Album changed event received in display page:', event);
           // Reload the current album when signalr broadcasts an update
           this.loadCurrentAlbum();
         }
       });
 
-    // Monitor connection status
-    this.signalrService.getConnectionState()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((connected) => {
-        this.connectionStatus.set(connected ? 'connected' : 'disconnected');
-      });
+    // Connect to SignalR if not already connected
+    if (!this.signalrService.isConnected()) {
+      this.signalrService.start()
+        .then(() => {
+          console.log('SignalR start() completed successfully');
+        })
+        .catch((error) => {
+          console.error('Failed to connect to SignalR:', error);
+        });
+    } else {
+      console.log('SignalR already connected');
+      this.connectionStatus.set('connected');
+    }
   }
 
   ngOnDestroy(): void {

@@ -70,20 +70,25 @@ export class Control implements OnInit, OnDestroy {
 
 
   private startSignalR(): void {
+    // Subscribe to album changes first
+    this.signalrService.getAlbumChanged().subscribe((event) => {
+      if (event) {
+        console.log('Album changed event received in control page:', event);
+        this.currentAlbumId.set(event.albumId);
+      }
+    });
+
+    // Then connect
     if (!this.signalrService.isConnected()) {
       this.signalrService.start()
         .then(() => {
-          console.log('SignalR connected');
-          // Listen for album changes from other clients
-          this.signalrService.getAlbumChanged().subscribe((event) => {
-            if (event) {
-              this.currentAlbumId.set(event.albumId);
-            }
-          });
+          console.log('SignalR connected from control page');
         })
         .catch((error) => {
           console.error('Failed to connect to SignalR:', error);
         });
+    } else {
+      console.log('SignalR already connected from control page');
     }
   }
 
