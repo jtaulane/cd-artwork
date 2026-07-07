@@ -1,7 +1,14 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Album, CreateAlbumRequest } from '../../services/album';
+import { Album, CreateAlbumRequest, Track } from '../../services/album';
+
+interface TrackInput {
+  id?: number; // Present if this is an existing track being edited
+  trackNumber: number;
+  trackTitle: string;
+  durationSeconds: number;
+}
 
 @Component({
   selector: 'app-album-editor',
@@ -13,7 +20,7 @@ import { Album, CreateAlbumRequest } from '../../services/album';
 export class AlbumEditorComponent {
   @Input() album: Album | null = null;
   @Input() selectedSlot: number | null = null;
-  @Output() save = new EventEmitter<{ album: CreateAlbumRequest; imageFile?: File }>();
+  @Output() save = new EventEmitter<{ album: CreateAlbumRequest; imageFile?: File; tracks?: TrackInput[] }>();
   @Output() cancel = new EventEmitter<void>();
 
   currentYear = new Date().getFullYear();
@@ -30,6 +37,10 @@ export class AlbumEditorComponent {
   releaseYear = signal<number>(this.currentYear);
   genre = signal<string>('');
 
+  // Track management
+  tracks = signal<TrackInput[]>([]);
+  newTrack = signal<TrackInput>({ trackNumber: 1, trackTitle: '', durationSeconds: 0 });
+
   ngOnInit(): void {
     if (this.album) {
       this.discNumber.set(this.album.discNumber);
@@ -40,6 +51,14 @@ export class AlbumEditorComponent {
       if (this.album.imagePath) {
         this.imagePreview.set(this.album.imagePath);
       }
+      if (this.album.tracks && this.album.tracks.length > 0) {
+        this.tracks.set(this.album.tracks.map(t => ({
+          id: t.id,
+          trackNumber: t.trackNumber,
+          trackTitle: t.trackTitle,
+          durationSeconds: t.durationSeconds
+        })));
+      }
     } else if (this.selectedSlot) {
       // Set disc number based on selected slot
       this.discNumber.set(this.selectedSlot);
@@ -47,6 +66,46 @@ export class AlbumEditorComponent {
       this.discNumber.set(1);
     }
   }
+
+  addTrack(): void {
+    const currentTracks = this.tracks();
+    const nextTrackNumber = currentTracks.length > 0
+      ? Math.max(...currentTracks.map(t => t.trackNumber)) + 1
+      : 1;
+
+    if (this.newTrack().trackTitle.trim()) {
+      this.tracks.set([
+        ...currentTracks,
+        {
+          trackNumber: nextTrackNumber,
+          trackTitle: this.newTrack().trackTitle,
+          durationSeconds: this.newTrack().durationSeconds
+        }
+      ]);
+      this.newTrack.set({ trackNumber: nextTrackNumber + 1, trackTitle: '', durationSeconds: 0 });
+    }
+  }
+
+  removeTrack(index: number): void {
+    const currentTracks = this.tracks();
+    this.tracks.set(currentTracks.filter((_, i) => i !== index));
+  }
+
+  secondsToDisplay(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  onDurationChange(value: string): void {
+    const duration = parseInt(value, 10) || 0;
+    this.newTrack.set({ ...this.newTrack(), durationSeconds: duration });
+  }
+
+  onTitleChange(value: string): void {
+    this.newTrack.set({ ...this.newTrack(), trackTitle: value });
+  }
+
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -124,7 +183,8 @@ export class AlbumEditorComponent {
 
     this.save.emit({
       album: albumData,
-      imageFile: this.selectedFile() || undefined
+      imageFile: this.selectedFile() || undefined,
+      tracks: this.tracks().length > 0 ? this.tracks() : undefined
     });
   }
 

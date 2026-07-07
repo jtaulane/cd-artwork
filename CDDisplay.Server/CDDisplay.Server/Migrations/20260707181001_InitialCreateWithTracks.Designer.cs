@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CDDisplay.Server.Migrations
 {
     [DbContext(typeof(AlbumDbContext))]
-    [Migration("20260707143737_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260707181001_InitialCreateWithTracks")]
+    partial class InitialCreateWithTracks
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,8 +78,53 @@ namespace CDDisplay.Server.Migrations
                         new
                         {
                             Id = 1,
-                            LastUpdated = new DateTime(2026, 7, 7, 14, 37, 36, 507, DateTimeKind.Utc).AddTicks(9283)
+                            LastUpdated = new DateTime(2026, 7, 7, 18, 10, 1, 142, DateTimeKind.Utc).AddTicks(7208)
                         });
+                });
+
+            modelBuilder.Entity("CDDisplay.Server.Models.Track", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AlbumId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TrackNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TrackTitle")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlbumId", "TrackNumber")
+                        .IsUnique();
+
+                    b.ToTable("Tracks");
+                });
+
+            modelBuilder.Entity("CDDisplay.Server.Models.Track", b =>
+                {
+                    b.HasOne("CDDisplay.Server.Models.Album", "Album")
+                        .WithMany("Tracks")
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Album");
+                });
+
+            modelBuilder.Entity("CDDisplay.Server.Models.Album", b =>
+                {
+                    b.Navigation("Tracks");
                 });
 #pragma warning restore 612, 618
         }

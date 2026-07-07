@@ -10,6 +10,7 @@ namespace CDDisplay.Server.Data
         }
 
         public DbSet<Album> Albums => Set<Album>();
+        public DbSet<Track> Tracks => Set<Track>();
         public DbSet<CurrentDisplay> CurrentDisplay => Set<CurrentDisplay>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,6 +32,20 @@ namespace CDDisplay.Server.Data
 
             modelBuilder.Entity<Album>()
                 .HasIndex(a => a.DiscNumber)
+                .IsUnique();
+
+            // Configure Track
+            modelBuilder.Entity<Track>()
+                .HasKey(t => t.Id);
+
+            modelBuilder.Entity<Track>()
+                .HasOne(t => t.Album)
+                .WithMany(a => a.Tracks)
+                .HasForeignKey(t => t.AlbumId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Track>()
+                .HasIndex(t => new { t.AlbumId, t.TrackNumber })
                 .IsUnique();
         }
     }

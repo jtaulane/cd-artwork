@@ -120,7 +120,7 @@ export class Control implements OnInit, OnDestroy {
   /**
    * Handle save from editor modal
    */
-  onAlbumSaved(data: { album: CreateAlbumRequest; imageFile?: File }): void {
+  onAlbumSaved(data: { album: CreateAlbumRequest; imageFile?: File; tracks?: any[] }): void {
     const isEditing = this.editingAlbum() !== null;
     const albumId = this.editingAlbum()?.id;
 
@@ -129,14 +129,18 @@ export class Control implements OnInit, OnDestroy {
     if (isEditing && albumId) {
       this.albumService.updateAlbum(albumId, data.album, data.imageFile).subscribe({
         next: () => {
-          this.successMessage.set('Album updated successfully');
-          this.showEditor.set(false);
-          this.editingAlbum.set(null);
-          this.selectedSlotForNew.set(null);
-          this.isLoading.set(false);
-          this.loadAlbums();
-
-          setTimeout(() => this.successMessage.set(null), 3000);
+          // If tracks provided, save them
+          if (data.tracks && data.tracks.length > 0) {
+            this.saveTracks(albumId, data.tracks);
+          } else {
+            this.successMessage.set('Album updated successfully');
+            this.showEditor.set(false);
+            this.editingAlbum.set(null);
+            this.selectedSlotForNew.set(null);
+            this.isLoading.set(false);
+            this.loadAlbums();
+            setTimeout(() => this.successMessage.set(null), 3000);
+          }
         },
         error: (error: any) => {
           console.error('Failed to update album:', error);
@@ -148,15 +152,19 @@ export class Control implements OnInit, OnDestroy {
       });
     } else {
       this.albumService.createAlbum(data.album, data.imageFile).subscribe({
-        next: () => {
-          this.successMessage.set('Album created successfully');
-          this.showEditor.set(false);
-          this.editingAlbum.set(null);
-          this.selectedSlotForNew.set(null);
-          this.isLoading.set(false);
-          this.loadAlbums();
-
-          setTimeout(() => this.successMessage.set(null), 3000);
+        next: (createdAlbum) => {
+          // If tracks provided, save them
+          if (data.tracks && data.tracks.length > 0) {
+            this.saveTracks(createdAlbum.id, data.tracks);
+          } else {
+            this.successMessage.set('Album created successfully');
+            this.showEditor.set(false);
+            this.editingAlbum.set(null);
+            this.selectedSlotForNew.set(null);
+            this.isLoading.set(false);
+            this.loadAlbums();
+            setTimeout(() => this.successMessage.set(null), 3000);
+          }
         },
         error: (error: any) => {
           console.error('Failed to create album:', error);
@@ -167,6 +175,74 @@ export class Control implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  /**
+   * Save tracks for an album
+   */
+  private saveTracks(albumId: number, tracks: any[]): void {
+    const newTracks = tracks.filter(t => !t.id); // Tracks without ID are new
+    const existingTracks = tracks.filter(t => t.id); // Tracks with ID need to be updated
+
+    let savedCount = 0;
+    const totalCount = newTracks.length + existingTracks.length;
+
+    if (totalCount === 0) {
+      this.successMessage.set('Album and tracks saved successfully');
+      this.showEditor.set(false);
+      this.editingAlbum.set(null);
+      this.selectedSlotForNew.set(null);
+      this.isLoading.set(false);
+      this.loadAlbums();
+      setTimeout(() => this.successMessage.set(null), 3000);
+      return;
+    }
+
+    // Handle new tracks
+    newTracks.forEach(track => {
+      this.albumService.createTrack(albumId, track).subscribe({
+        next: () => {
+          savedCount++;
+          if (savedCount === totalCount) {
+            this.successMessage.set('Album and tracks saved successfully');
+            this.showEditor.set(false);
+            this.editingAlbum.set(null);
+            this.selectedSlotForNew.set(null);
+            this.isLoading.set(false);
+            this.loadAlbums();
+            setTimeout(() => this.successMessage.set(null), 3000);
+          }
+        },
+        error: (error: any) => {
+          console.error('Failed to save track:', error);
+          this.errorMessage.set('Failed to save all tracks');
+          this.isLoading.set(false);
+        }
+      });
+    });
+
+    // Handle existing tracks
+    existingTracks.forEach(track => {
+      this.albumService.updateTrack(albumId, track.id, track).subscribe({
+        next: () => {
+          savedCount++;
+          if (savedCount === totalCount) {
+            this.successMessage.set('Album and tracks saved successfully');
+            this.showEditor.set(false);
+            this.editingAlbum.set(null);
+            this.selectedSlotForNew.set(null);
+            this.isLoading.set(false);
+            this.loadAlbums();
+            setTimeout(() => this.successMessage.set(null), 3000);
+          }
+        },
+        error: (error: any) => {
+          console.error('Failed to update track:', error);
+          this.errorMessage.set('Failed to save all tracks');
+          this.isLoading.set(false);
+        }
+      });
+    });
   }
 
   /**

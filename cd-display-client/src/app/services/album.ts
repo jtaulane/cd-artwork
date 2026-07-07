@@ -3,6 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs';
 
+export interface Track {
+  id: number;
+  albumId: number;
+  trackNumber: number;
+  trackTitle: string;
+  durationSeconds: number;
+  createdDate: string;
+}
+
 export interface Album {
   id: number;
   discNumber: number;
@@ -13,6 +22,7 @@ export interface Album {
   imagePath?: string;
   createdDate: string;
   updatedDate: string;
+  tracks?: Track[];
 }
 
 export interface CreateAlbumRequest {
@@ -116,5 +126,33 @@ export class AlbumService {
    */
   deleteAlbum(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Get all tracks for an album
+   */
+  getTracks(albumId: number): Observable<Track[]> {
+    return this.http.get<Track[]>(`${this.apiUrl}/${albumId}/tracks`);
+  }
+
+  /**
+   * Create a new track for an album
+   */
+  createTrack(albumId: number, track: Partial<Track>): Observable<Track> {
+    return this.http.post<Track>(`${this.apiUrl}/${albumId}/tracks`, track);
+  }
+
+  /**
+   * Update a track
+   */
+  updateTrack(albumId: number, trackId: number, track: Partial<Track>): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${albumId}/tracks/${trackId}`, track);
+  }
+
+  /**
+   * Delete a track
+   */
+  deleteTrack(albumId: number, trackId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${albumId}/tracks/${trackId}`);
   }
 }

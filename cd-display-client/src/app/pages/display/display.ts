@@ -29,6 +29,18 @@ export class Display implements OnInit, OnDestroy {
     return this.albumService.getImageUrl(imagePath);
   }
 
+  /**
+   * Format duration in seconds to MM:SS
+   */
+  formatDuration(seconds: number): string {
+    if (!seconds || seconds < 0) {
+      return '0:00';
+    }
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
+
   ngOnInit(): void {
     // Load current album
     this.loadCurrentAlbum();

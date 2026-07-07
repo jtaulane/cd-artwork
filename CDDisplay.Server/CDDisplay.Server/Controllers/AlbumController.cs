@@ -25,14 +25,19 @@ namespace CDDisplay.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Album>>> GetAlbums()
         {
-            var albums = await _context.Albums.OrderBy(a => a.DiscNumber).ToListAsync();
+            var albums = await _context.Albums
+                .Include(a => a.Tracks)
+                .OrderBy(a => a.DiscNumber)
+                .ToListAsync();
             return Ok(albums);
         }
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Album>> GetAlbum(int id)
         {
-            var album = await _context.Albums.FirstOrDefaultAsync(a => a.Id == id);
+            var album = await _context.Albums
+                .Include(a => a.Tracks)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             if (album is null)
             {
@@ -47,6 +52,12 @@ namespace CDDisplay.Server.Controllers
         {
             try
             {
+                // Ensure required fields are set properly
+                album.CreatedDate = DateTime.UtcNow;
+                album.UpdatedDate = DateTime.UtcNow;
+                // Initialize tracks collection if null
+                album.Tracks ??= new List<Track>();
+
                 // Handle image upload if provided
                 if (imageFile != null)
                 {
@@ -61,7 +72,7 @@ namespace CDDisplay.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
             }
         }
 
@@ -101,7 +112,7 @@ namespace CDDisplay.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
             }
         }
 
@@ -142,7 +153,9 @@ namespace CDDisplay.Server.Controllers
                 return NotFound();
             }
 
-            var album = await _context.Albums.FirstOrDefaultAsync(a => a.Id == currentDisplay.CurrentAlbumId);
+            var album = await _context.Albums
+                .Include(a => a.Tracks)
+                .FirstOrDefaultAsync(a => a.Id == currentDisplay.CurrentAlbumId);
             return album == null ? NotFound() : Ok(album);
         }
 

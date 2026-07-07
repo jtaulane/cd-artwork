@@ -1,6 +1,7 @@
 .display-page {
   width: 100%;
   height: 100vh;
+  max-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,6 +9,8 @@
   color: white;
   overflow: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .loading-state {
@@ -40,36 +43,50 @@
 
 .album-display {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-  padding: 3rem;
-  max-width: 1400px;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr;
+  gap: 1.5rem;
   width: 100%;
   height: 100%;
+  padding: 1.5rem;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.artwork-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  flex: 0 0 auto;
 }
 
 .artwork-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-height: 100%;
-  max-width: 100%;
+  flex: 0 1 auto;
+  max-height: 350px;
+  max-width: 350px;
 }
 
 .album-artwork {
   max-width: 100%;
-  max-height: 100%;
+  max-height: 350px;
   width: auto;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .artwork-placeholder {
-  width: 400px;
-  height: 400px;
+  width: 250px;
+  height: 250px;
   background: linear-gradient(135deg, #444 0%, #333 100%);
   border-radius: 12px;
   display: flex;
@@ -83,61 +100,79 @@
 .album-info {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0.5rem;
+  align-items: center;
+  text-align: center;
+  flex: 0 1 auto;
+  overflow: hidden;
+  width: 100%;
 }
 
 .album-title {
   margin: 0;
-  font-size: 3.5rem;
+  font-size: 1.1rem;
   font-weight: 700;
   line-height: 1.2;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .album-artist {
   margin: 0;
-  font-size: 2rem;
+  font-size: 0.85rem;
   color: #bbb;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .album-details {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  border-left: 4px solid #007bff;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  width: 100%;
+  font-size: 0.75rem;
 }
 
 .detail-item {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  font-size: 1.25rem;
+  gap: 0.2rem;
+  font-size: 0.75rem;
 }
 
 .detail-label {
   color: #aaa;
   font-weight: 500;
+  font-size: 0.65rem;
 }
 
 .detail-value {
   color: white;
   font-weight: 600;
-  font-size: 1.5rem;
+  font-size: 0.75rem;
 }
 
 .connection-status {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 1rem;
-  padding: 1rem;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
   background-color: rgba(220, 53, 69, 0.2);
   border-radius: 4px;
   border: 1px solid rgba(220, 53, 69, 0.5);
+  align-self: center;
 
   &.connected {
     background-color: rgba(40, 167, 69, 0.2);
@@ -146,11 +181,12 @@
 }
 
 .status-indicator {
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background-color: #dc3545;
   animation: pulse 2s infinite;
+  flex-shrink: 0;
 
   .connected & {
     background-color: #28a745;
@@ -167,7 +203,97 @@
 }
 
 .status-text {
+  flex: 0 1 auto;
+}
+
+.tracklist-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+.tracklist-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.tracklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+  min-height: 0;
   flex: 1;
+  padding-right: 0.5rem;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+.track-item {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr 2.5rem;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.track-number {
+  color: #aaa;
+  font-weight: 600;
+  text-align: right;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.track-title {
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.track-duration {
+  color: #bbb;
+  text-align: right;
+  font-size: 0.7rem;
+  flex-shrink: 0;
 }
 
 .empty-state {
@@ -187,38 +313,99 @@
   }
 }
 
-/* Tablet layout */
-@media (max-width: 1024px) {
+/* Tablet layout - stack vertically only if height is also small */
+@media (max-width: 1024px) and (max-height: 600px) {
+  /* Keep side-by-side for 1024x600 displays */
   .album-display {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 2rem;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .artwork-section {
+    gap: 0.75rem;
+  }
+
+  .artwork-container {
+    max-height: 280px;
+    max-width: 280px;
+  }
+
+  .album-artwork {
+    max-height: 280px;
   }
 
   .artwork-placeholder {
-    width: 300px;
-    height: 300px;
+    width: 220px;
+    height: 220px;
   }
 
   .album-title {
-    font-size: 2.5rem;
+    font-size: 1rem;
   }
 
   .album-artist {
-    font-size: 1.5rem;
+    font-size: 0.8rem;
+  }
+
+  .album-details {
+    gap: 0.8rem;
+  }
+
+  .detail-label {
+    font-size: 0.6rem;
+  }
+
+  .detail-value {
+    font-size: 0.7rem;
+  }
+
+  .tracklist-section {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .tracklist-title {
+    font-size: 0.95rem;
+  }
+
+  .track-item {
+    font-size: 0.75rem;
+    gap: 0.4rem;
+    grid-template-columns: 1.2rem 1fr 2.2rem;
+  }
+
+  .track-number {
+    font-size: 0.65rem;
+  }
+
+  .track-title {
+    font-size: 0.75rem;
+  }
+
+  .track-duration {
+    font-size: 0.65rem;
   }
 }
 
-/* Mobile layout */
-@media (max-width: 640px) {
-  .display-page {
-    height: auto;
-    min-height: 100vh;
+/* Tablet layout - stack vertically when width is limited but height is adequate */
+@media (max-width: 1024px) and (min-height: 601px) {
+  .album-display {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
   }
 
-  .album-display {
-    gap: 1.5rem;
-    padding: 1.5rem 1rem;
+  .artwork-section {
+    gap: 1rem;
+  }
+
+  .artwork-container {
+    max-height: 300px;
+  }
+
+  .album-artwork {
+    max-height: 300px;
   }
 
   .artwork-placeholder {
@@ -226,29 +413,88 @@
     height: 250px;
   }
 
-  .album-artwork {
-    width: 100%;
-    max-width: 250px;
-  }
-
   .album-title {
-    font-size: 2rem;
+    font-size: 1.25rem;
   }
 
   .album-artist {
-    font-size: 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .tracklist-section {
+    padding: 1rem;
+  }
+
+  .tracklist-title {
+    font-size: 1.1rem;
+  }
+
+  .track-item {
+    font-size: 0.85rem;
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 640px) {
+  .album-display {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .artwork-container {
+    max-height: 250px;
+  }
+
+  .album-artwork {
+    max-height: 250px;
+  }
+
+  .artwork-placeholder {
+    width: 200px;
+    height: 200px;
+  }
+
+  .album-title {
+    font-size: 1.1rem;
+  }
+
+  .album-artist {
+    font-size: 0.8rem;
   }
 
   .album-details {
-    padding: 1.5rem 1rem;
     gap: 1rem;
   }
 
-  .detail-item {
-    font-size: 1rem;
+  .detail-label {
+    font-size: 0.65rem;
   }
 
   .detail-value {
-    font-size: 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .tracklist-section {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .tracklist-title {
+    font-size: 1rem;
+  }
+
+  .track-item {
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .track-number {
+    font-size: 0.7rem;
+  }
+
+  .track-duration {
+    font-size: 0.7rem;
   }
 }
+

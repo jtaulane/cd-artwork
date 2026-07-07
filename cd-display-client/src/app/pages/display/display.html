@@ -6,46 +6,63 @@
 		</div>
 	} @else if (album(); as currentAlbum) {
 		<div class="album-display">
-			<div class="artwork-container">
-				@if (currentAlbum && currentAlbum.imagePath) {
-					<img
-						[src]="getImageUrl(currentAlbum.imagePath)"
-						[alt]="currentAlbum.albumTitle"
-						class="album-artwork"
-					/>
-				} @else {
-					<div class="artwork-placeholder">
-						<span>No Artwork</span>
-					</div>
-				}
-			</div>
-
-			<div class="album-info">
-				<h1 class="album-title">{{ currentAlbum!.albumTitle }}</h1>
-				<p class="album-artist">{{ currentAlbum!.artist }}</p>
-
-				<div class="album-details">
-					<div class="detail-item">
-						<span class="detail-label">Year:</span>
-						<span class="detail-value">{{ currentAlbum!.releaseYear }}</span>
-					</div>
-					<div class="detail-item">
-						<span class="detail-label">Genre:</span>
-						<span class="detail-value">{{ currentAlbum!.genre }}</span>
-					</div>
-					<div class="detail-item">
-						<span class="detail-label">Disc:</span>
-						<span class="detail-value">#{{ currentAlbum!.discNumber }}</span>
-					</div>
+			<div class="artwork-section">
+				<div class="artwork-container">
+					@if (currentAlbum && currentAlbum.imagePath) {
+						<img
+							[src]="getImageUrl(currentAlbum.imagePath)"
+							[alt]="currentAlbum.albumTitle"
+							class="album-artwork"
+						/>
+					} @else {
+						<div class="artwork-placeholder">
+							<span>No Artwork</span>
+						</div>
+					}
 				</div>
 
-				<div class="connection-status" [class.connected]="connectionStatus() === 'connected'">
-					<span class="status-indicator"></span>
-					<span class="status-text">
-						{{ connectionStatus() === 'connected' ? 'Connected' : 'Disconnected' }}
-					</span>
+				<div class="album-info">
+					<h1 class="album-title">{{ currentAlbum!.albumTitle }}</h1>
+					<p class="album-artist">{{ currentAlbum!.artist }}</p>
+
+					<div class="album-details">
+						<div class="detail-item">
+							<span class="detail-label">Year:</span>
+							<span class="detail-value">{{ currentAlbum!.releaseYear }}</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">Genre:</span>
+							<span class="detail-value">{{ currentAlbum!.genre }}</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">Disc:</span>
+							<span class="detail-value">#{{ currentAlbum!.discNumber }}</span>
+						</div>
+					</div>
+
+					<div class="connection-status" [class.connected]="connectionStatus() === 'connected'">
+						<span class="status-indicator"></span>
+						<span class="status-text">
+							{{ connectionStatus() === 'connected' ? 'Connected' : 'Disconnected' }}
+						</span>
+					</div>
 				</div>
 			</div>
+
+			@if (currentAlbum.tracks && currentAlbum.tracks.length > 0) {
+				<div class="tracklist-section">
+					<h2 class="tracklist-title">Tracklist</h2>
+					<div class="tracklist">
+						@for (track of currentAlbum.tracks; let trackIndex = $index; track trackIndex) {
+							<div class="track-item">
+								<span class="track-number">{{ track.trackNumber }}</span>
+								<span class="track-title">{{ track.trackTitle }}</span>
+								<span class="track-duration">{{ formatDuration(track.durationSeconds) }}</span>
+							</div>
+						}
+					</div>
+				</div>
+			}
 		</div>
 	} @else {
 		<div class="empty-state">

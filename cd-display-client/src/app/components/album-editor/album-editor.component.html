@@ -104,6 +104,57 @@
           }
         </div>
       </div>
+
+      <div class="form-group">
+        <label>Tracklist</label>
+        <div class="tracklist-editor">
+          @if (tracks().length > 0) {
+            <div class="tracks-list">
+              @for (track of tracks(); let i = $index; track i) {
+                <div class="track-row">
+                  <span class="track-number">{{ track.trackNumber }}</span>
+                  <span class="track-title">{{ track.trackTitle }}</span>
+                  <span class="track-duration">{{ secondsToDisplay(track.durationSeconds) }}</span>
+                  <button 
+                    type="button"
+                    class="remove-track-btn"
+                    (click)="removeTrack(i)"
+                    title="Remove track"
+                  >
+                    ×
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="add-track-form">
+            <input
+              type="text"
+              [value]="newTrack().trackTitle"
+              (change)="onTitleChange($any($event.target).value)"
+              placeholder="Track title"
+              class="track-input"
+            />
+            <input
+              type="number"
+              min="0"
+              [value]="newTrack().durationSeconds"
+              (change)="onDurationChange($any($event.target).value)"
+              placeholder="Duration (seconds)"
+              class="duration-input"
+            />
+            <button
+              type="button"
+              class="add-track-btn"
+              (click)="addTrack()"
+              [disabled]="!newTrack().trackTitle.trim()"
+            >
+              Add Track
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="modal-footer">

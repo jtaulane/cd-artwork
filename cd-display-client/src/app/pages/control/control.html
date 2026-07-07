@@ -10,13 +10,6 @@
     </div>
   }
 
-  @if (successMessage()) {
-    <div class="alert alert-success">
-      {{ successMessage() }}
-      <button class="close-alert" (click)="successMessage.set(null)">×</button>
-    </div>
-  }
-
   @if (isLoading()) {
     <div class="loading-overlay">
       <div class="spinner"></div>
