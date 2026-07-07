@@ -28,8 +28,24 @@ export interface CreateAlbumRequest {
 })
 export class AlbumService {
   private apiUrl = environment.apiUrl.replace(/\/$/, '') + '/api/album';
+  private baseUrl = environment.apiUrl.replace(/\/$/, '');
 
   constructor(private http: HttpClient) {}
+
+  /**
+   * Get the full image URL for an album
+   */
+  getImageUrl(imagePath?: string): string {
+    if (!imagePath) {
+      return '';
+    }
+    // If imagePath already starts with http, return as-is
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    // Otherwise, prepend the base API URL
+    return `${this.baseUrl}${imagePath}`;
+  }
 
   /**
    * Get all albums

@@ -22,6 +22,13 @@ export class Display implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  /**
+   * Get full image URL for an album
+   */
+  getImageUrl(imagePath?: string): string {
+    return this.albumService.getImageUrl(imagePath);
+  }
+
   ngOnInit(): void {
     // Load current album
     this.loadCurrentAlbum();

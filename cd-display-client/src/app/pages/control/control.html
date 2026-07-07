@@ -40,7 +40,7 @@
           <div class="slot-content">
             <div class="album-image">
               @if (album.imagePath) {
-                <img [src]="album.imagePath" [alt]="album.albumTitle" />
+                <img [src]="getImageUrl(album.imagePath)" [alt]="album.albumTitle" />
               } @else {
                 <div class="placeholder">No Image</div>
               }

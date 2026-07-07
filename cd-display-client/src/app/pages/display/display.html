@@ -9,7 +9,7 @@
 			<div class="artwork-container">
 				@if (currentAlbum && currentAlbum.imagePath) {
 					<img
-						[src]="currentAlbum.imagePath"
+						[src]="getImageUrl(currentAlbum.imagePath)"
 						[alt]="currentAlbum.albumTitle"
 						class="album-artwork"
 					/>

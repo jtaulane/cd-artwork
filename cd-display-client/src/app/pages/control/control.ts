@@ -26,6 +26,13 @@ export class Control implements OnInit, OnDestroy {
   editingAlbum = signal<Album | null>(null);
   selectedSlotForNew = signal<number | null>(null);
 
+  /**
+   * Get full image URL for an album
+   */
+  getImageUrl(imagePath?: string): string {
+    return this.albumService.getImageUrl(imagePath);
+  }
+
   ngOnInit(): void {
     this.loadAlbums();
     this.loadCurrentAlbum();
