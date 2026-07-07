@@ -13,12 +13,13 @@ namespace CDDisplay.Server.Controllers
     {
         private readonly AlbumDbContext _context;
         private readonly IHubContext<DisplayHub> _hubContext;
-        private const string ImagesDirectory = "wwwroot/images/albums";
+        private readonly IWebHostEnvironment _env;
 
-        public AlbumController(AlbumDbContext context, IHubContext<DisplayHub> hubContext)
+        public AlbumController(AlbumDbContext context, IHubContext<DisplayHub> hubContext, IWebHostEnvironment env)
         {
             _context = context;
             _hubContext = hubContext;
+            _env = env;
         }
 
         [HttpGet]
@@ -176,13 +177,15 @@ namespace CDDisplay.Server.Controllers
 
         private async Task<string> SaveImageFile(IFormFile imageFile)
         {
-            if (!Directory.Exists(ImagesDirectory))
+            var imagesDirectory = Path.Combine(_env.WebRootPath, "images", "albums");
+
+            if (!Directory.Exists(imagesDirectory))
             {
-                Directory.CreateDirectory(ImagesDirectory);
+                Directory.CreateDirectory(imagesDirectory);
             }
 
             var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(imageFile.FileName)}";
-            var filePath = Path.Combine(ImagesDirectory, fileName);
+            var filePath = Path.Combine(imagesDirectory, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
