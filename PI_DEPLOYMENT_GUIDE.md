@@ -17,8 +17,8 @@ sudo apt upgrade -y
 ```bash
 wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
 chmod +x dotnet-install.sh
-./dotnet-install.sh --channel 8.0
-echo 'export PATH=$PATH:$HOME/.dotnetcli' >> ~/.bashrc
+./dotnet-install.sh --channel 8.0 --install-dir $HOME/.dotnet
+echo 'export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools' >> ~/.bashrc
 source ~/.bashrc
 dotnet --version  # Verify installation
 ```
@@ -133,7 +133,7 @@ After=network.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/cd-artwork/CDDisplay.Server/CDDisplay.Server
-ExecStart=/home/pi/.dotnetcli/dotnet run --configuration Release
+ExecStart=/home/pi/.dotnet/dotnet run --configuration Release
 Restart=on-failure
 RestartSec=10
 
