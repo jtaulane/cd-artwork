@@ -1,0 +1,254 @@
+.display-page {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+  color: white;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.album-display {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  padding: 3rem;
+  max-width: 1400px;
+  width: 100%;
+  height: 100%;
+}
+
+.artwork-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.album-artwork {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+}
+
+.artwork-placeholder {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #444 0%, #333 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #999;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.album-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.album-title {
+  margin: 0;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.album-artist {
+  margin: 0;
+  font-size: 2rem;
+  color: #bbb;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.album-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.25rem;
+}
+
+.detail-label {
+  color: #aaa;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: white;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  padding: 1rem;
+  background-color: rgba(220, 53, 69, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(220, 53, 69, 0.5);
+
+  &.connected {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-color: rgba(40, 167, 69, 0.5);
+  }
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  animation: pulse 2s infinite;
+
+  .connected & {
+    background-color: #28a745;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.status-text {
+  flex: 1;
+}
+
+.empty-state {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  p {
+    margin: 0;
+    font-size: 2rem;
+  }
+
+  .hint {
+    font-size: 1.25rem;
+    color: #aaa;
+  }
+}
+
+/* Tablet layout */
+@media (max-width: 1024px) {
+  .album-display {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .artwork-placeholder {
+    width: 300px;
+    height: 300px;
+  }
+
+  .album-title {
+    font-size: 2.5rem;
+  }
+
+  .album-artist {
+    font-size: 1.5rem;
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 640px) {
+  .display-page {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .album-display {
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .artwork-placeholder {
+    width: 250px;
+    height: 250px;
+  }
+
+  .album-artwork {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .album-title {
+    font-size: 2rem;
+  }
+
+  .album-artist {
+    font-size: 1.25rem;
+  }
+
+  .album-details {
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+  }
+
+  .detail-item {
+    font-size: 1rem;
+  }
+
+  .detail-value {
+    font-size: 1.25rem;
+  }
+}

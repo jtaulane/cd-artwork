@@ -1,8 +1,106 @@
-<h1>Select Album</h1>
+<div class="control-page">
+  <div class="control-header">
+    <h1>CD Collection Control</h1>
+    <div class="header-actions">
+      <button class="btn btn-primary add-btn" (click)="openNewAlbumEditor()">
+        + Add Album
+      </button>
+    </div>
+  </div>
 
-@for (album of albums(); track album.discNumber) {
-  <button (click)="selectDisc(album.discNumber)">
-    Disc {{album.discNumber}} -
-    {{album.title}}
-  </button>
-}
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+      <button class="close-alert" (click)="errorMessage.set(null)">×</button>
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      {{ successMessage() }}
+      <button class="close-alert" (click)="successMessage.set(null)">×</button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  }
+
+  <div class="album-grid">
+    @for (discNumber of getDiscNumbers(); track discNumber) {
+      @let album = getAlbumByDiscNumber(discNumber);
+
+      <div 
+        class="album-card"
+        [class.filled]="album"
+        [class.current]="album && album.id === currentAlbumId()"
+      >
+        @if (album) {
+          <div class="card-image-container">
+            @if (album.imagePath) {
+              <img [src]="album.imagePath" [alt]="album.albumTitle" class="card-image" />
+            } @else {
+              <div class="placeholder-image">
+                <span>No Image</span>
+              </div>
+            }
+            <div class="card-overlay">
+              <div class="overlay-content">
+                <button 
+                  class="action-btn view-btn" 
+                  (click)="selectAlbumForDisplay(album)"
+                  title="Display this album"
+                >
+                  View
+                </button>
+                <button 
+                  class="action-btn edit-btn" 
+                  (click)="openEditAlbumEditor(album)"
+                  title="Edit album"
+                >
+                  Edit
+                </button>
+                <button 
+                  class="action-btn delete-btn" 
+                  (click)="deleteAlbum(album)"
+                  title="Delete album"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-info">
+            <div class="disc-number">{{ discNumber }}</div>
+            <h3 class="card-title">{{ album.albumTitle }}</h3>
+            <p class="card-artist">{{ album.artist }}</p>
+            <p class="card-year">{{ album.releaseYear }}</p>
+          </div>
+        } @else {
+          <div class="empty-slot">
+            <button 
+              class="empty-action-btn" 
+              (click)="openNewAlbumEditor()"
+              title="Add album to slot {{ discNumber }}"
+            >
+              <span class="plus-icon">+</span>
+              <span class="empty-text">Add Album</span>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showEditor()) {
+    <app-album-editor
+      [album]="editingAlbum()"
+      (save)="onAlbumSaved($event)"
+      (cancel)="onEditorCanceled()"
+    ></app-album-editor>
+  }
+</div>
+

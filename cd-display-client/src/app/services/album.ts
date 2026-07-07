@@ -1,58 +1,104 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { map, Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 
 export interface Album {
+  id: number;
   discNumber: number;
-  artist: string;
-  title: string;
-  coverImage: string;
-}
-
-interface ApiAlbum {
-  discNumber: number;
-  artist: string;
   albumTitle: string;
-  coverImage: string;
+  artist: string;
+  releaseYear: number;
+  genre: string;
+  imagePath?: string;
+  createdDate: string;
+  updatedDate: string;
 }
 
-interface CurrentDiscResponse {
+export interface CreateAlbumRequest {
   discNumber: number;
+  albumTitle: string;
+  artist: string;
+  releaseYear: number;
+  genre: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AlbumService {
-
-  private apiUrl = environment.apiUrl.replace(/\/$/, '');
+  private apiUrl = environment.apiUrl.replace(/\/$/, '') + '/api/album';
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * Get all albums
+   */
   getAlbums(): Observable<Album[]> {
-    return this.http.get<ApiAlbum[]>(`${this.apiUrl}/Albums`).pipe(
-      map((albums) => albums.map((album) => ({
-        discNumber: album.discNumber,
-        artist: album.artist,
-        title: album.albumTitle,
-        coverImage: album.coverImage,
-      }))),
-      tap((albums) => console.log('Albums retrieved:', albums))
-    );
+    return this.http.get<Album[]>(this.apiUrl);
   }
 
-  setCurrentDisc(discNumber: number) {
-    console.log(`Setting current disc to: ${discNumber}`);
-    return this.http.post(
-      `${this.apiUrl}/Albums/currentDisc`,
-      { discNumber }
-    );
+  /**
+   * Get single album by ID
+   */
+  getAlbum(id: number): Observable<Album> {
+    return this.http.get<Album>(`${this.apiUrl}/${id}`);
   }
 
-  getCurrentDisc() {
-    return this.http.get<CurrentDiscResponse>(`${this.apiUrl}/Albums/currentDisc`).pipe(
-      map((response) => response.discNumber)
-    );
+  /**
+   * Get the currently displayed album
+   */
+  getCurrentAlbum(): Observable<Album> {
+    return this.http.get<Album>(`${this.apiUrl}/current`);
+  }
+
+  /**
+   * Set the currently displayed album
+   */
+  setCurrentAlbum(albumId: number): Observable<Album> {
+    return this.http.post<Album>(`${this.apiUrl}/current/${albumId}`, {});
+  }
+
+  /**
+   * Create a new album with optional image
+   */
+  createAlbum(album: CreateAlbumRequest, imageFile?: File): Observable<Album> {
+    const formData = new FormData();
+    formData.append('discNumber', album.discNumber.toString());
+    formData.append('albumTitle', album.albumTitle);
+    formData.append('artist', album.artist);
+    formData.append('releaseYear', album.releaseYear.toString());
+    formData.append('genre', album.genre);
+
+    if (imageFile) {
+      formData.append('imageFile', imageFile);
+    }
+
+    return this.http.post<Album>(this.apiUrl, formData);
+  }
+
+  /**
+   * Update an existing album with optional image
+   */
+  updateAlbum(id: number, album: CreateAlbumRequest, imageFile?: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('discNumber', album.discNumber.toString());
+    formData.append('albumTitle', album.albumTitle);
+    formData.append('artist', album.artist);
+    formData.append('releaseYear', album.releaseYear.toString());
+    formData.append('genre', album.genre);
+
+    if (imageFile) {
+      formData.append('imageFile', imageFile);
+    }
+
+    return this.http.put<void>(`${this.apiUrl}/${id}`, formData);
+  }
+
+  /**
+   * Delete an album
+   */
+  deleteAlbum(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

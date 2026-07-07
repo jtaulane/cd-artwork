@@ -1,0 +1,136 @@
+<div class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ album ? 'Edit Album' : 'Add New Album' }}</h2>
+      <button class="close-btn" (click)="onCancel()" type="button">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      @if (errorMessage()) {
+        <div class="error-message">{{ errorMessage() }}</div>
+      }
+
+      <div class="form-group">
+        <label for="discNumber">Disc Number (1-25) *</label>
+        <input
+          type="number"
+          id="discNumber"
+          [(ngModel)]="discNumber"
+          [value]="discNumber()"
+          (ngModelChange)="discNumber.set($event)"
+          min="1"
+          max="25"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="albumTitle">Album Title *</label>
+        <input
+          type="text"
+          id="albumTitle"
+          [(ngModel)]="albumTitle"
+          [value]="albumTitle()"
+          (ngModelChange)="albumTitle.set($event)"
+          placeholder="Enter album title"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="artist">Artist *</label>
+        <input
+          type="text"
+          id="artist"
+          [(ngModel)]="artist"
+          [value]="artist()"
+          (ngModelChange)="artist.set($event)"
+          placeholder="Enter artist name"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="releaseYear">Release Year</label>
+          <input
+            type="number"
+            id="releaseYear"
+            [(ngModel)]="releaseYear"
+            [value]="releaseYear()"
+            (ngModelChange)="releaseYear.set($event)"
+            min="1900"
+            [max]="currentYear"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="genre">Genre *</label>
+          <input
+            type="text"
+            id="genre"
+            [(ngModel)]="genre"
+            [value]="genre()"
+            (ngModelChange)="genre.set($event)"
+            placeholder="Enter genre"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Album Artwork</label>
+        <div
+          class="image-upload-area"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          @if (imagePreview()) {
+            <div class="image-preview-container">
+              <img [src]="imagePreview()" alt="Album artwork preview" class="preview-image" />
+              <button
+                type="button"
+                class="remove-image-btn"
+                (click)="removeImage()"
+              >
+                Remove Image
+              </button>
+            </div>
+          } @else {
+            <div class="upload-placeholder">
+              <p>Drag and drop image here or</p>
+              <label for="imageFile" class="upload-link">click to select</label>
+              <input
+                type="file"
+                id="imageFile"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                style="display: none"
+              />
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        class="btn btn-secondary"
+        (click)="onCancel()"
+        [disabled]="isLoading()"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="btn btn-primary"
+        (click)="onSave()"
+        [disabled]="isLoading()"
+        type="button"
+      >
+        {{ isLoading() ? 'Saving...' : 'Save Album' }}
+      </button>
+    </div>
+  </div>
+</div>
