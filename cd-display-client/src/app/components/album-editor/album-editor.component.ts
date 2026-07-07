@@ -12,6 +12,7 @@ import { Album, CreateAlbumRequest } from '../../services/album';
 })
 export class AlbumEditorComponent {
   @Input() album: Album | null = null;
+  @Input() selectedSlot: number | null = null;
   @Output() save = new EventEmitter<{ album: CreateAlbumRequest; imageFile?: File }>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -39,9 +40,10 @@ export class AlbumEditorComponent {
       if (this.album.imagePath) {
         this.imagePreview.set(this.album.imagePath);
       }
+    } else if (this.selectedSlot) {
+      // Set disc number based on selected slot
+      this.discNumber.set(this.selectedSlot);
     } else {
-      // Find next available disc number for new album
-      // This would need to be set by parent component
       this.discNumber.set(1);
     }
   }

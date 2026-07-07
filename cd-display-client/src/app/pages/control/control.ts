@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AlbumService, Album, CreateAlbumRequest } from '../../services/album';
 import { SignalrService } from '../../services/signalr.service';
@@ -11,7 +11,7 @@ import { AlbumEditorComponent } from '../../components/album-editor/album-editor
   templateUrl: './control.html',
   styleUrl: './control.scss',
 })
-export class Control implements OnInit {
+export class Control implements OnInit, OnDestroy {
   private albumService = inject(AlbumService);
   private signalrService = inject(SignalrService);
 
@@ -24,10 +24,11 @@ export class Control implements OnInit {
   // Modal state
   showEditor = signal(false);
   editingAlbum = signal<Album | null>(null);
-  nextDiscNumberForNew = signal<number>(1);
+  selectedSlotForNew = signal<number | null>(null);
 
   ngOnInit(): void {
     this.loadAlbums();
+    this.loadCurrentAlbum();
     this.startSignalR();
   }
 
@@ -37,10 +38,6 @@ export class Control implements OnInit {
       next: (albums) => {
         this.albums.set(albums);
         this.isLoading.set(false);
-        // Find next available disc number
-        const usedNumbers = albums.map(a => a.discNumber);
-        const nextNumber = this.findNextAvailableDiscNumber(usedNumbers);
-        this.nextDiscNumberForNew.set(nextNumber);
       },
       error: (error) => {
         console.error('Failed to load albums:', error);
@@ -50,14 +47,20 @@ export class Control implements OnInit {
     });
   }
 
-  private findNextAvailableDiscNumber(usedNumbers: number[]): number {
-    for (let i = 1; i <= 25; i++) {
-      if (!usedNumbers.includes(i)) {
-        return i;
+  private loadCurrentAlbum(): void {
+    this.albumService.getCurrentAlbum().subscribe({
+      next: (album) => {
+        this.currentAlbumId.set(album.id);
+      },
+      error: (error) => {
+        console.error('Failed to load current album:', error);
+        // It's okay if no album is currently selected
+        this.currentAlbumId.set(null);
       }
-    }
-    return 1; // Default if all slots are full
+    });
   }
+
+
 
   private startSignalR(): void {
     if (!this.signalrService.isConnected()) {
@@ -78,16 +81,17 @@ export class Control implements OnInit {
   }
 
   /**
-   * Get album for a specific disc number, or null if empty
+   * Get album for a specific disc slot number, or null if empty
    */
-  getAlbumByDiscNumber(discNumber: number): Album | null {
-    return this.albums().find(a => a.discNumber === discNumber) || null;
+  getAlbumBySlot(slotNumber: number): Album | null {
+    return this.albums().find(a => a.discNumber === slotNumber) || null;
   }
 
   /**
-   * Open editor for new album
+   * Open editor for new album in specific slot
    */
-  openNewAlbumEditor(): void {
+  openNewAlbumEditor(slotNumber: number): void {
+    this.selectedSlotForNew.set(slotNumber);
     this.editingAlbum.set(null);
     this.showEditor.set(true);
   }
@@ -97,6 +101,7 @@ export class Control implements OnInit {
    */
   openEditAlbumEditor(album: Album): void {
     this.editingAlbum.set(album);
+    this.selectedSlotForNew.set(null);
     this.showEditor.set(true);
   }
 
@@ -115,10 +120,10 @@ export class Control implements OnInit {
           this.successMessage.set('Album updated successfully');
           this.showEditor.set(false);
           this.editingAlbum.set(null);
+          this.selectedSlotForNew.set(null);
           this.isLoading.set(false);
           this.loadAlbums();
 
-          // Clear success message after 3 seconds
           setTimeout(() => this.successMessage.set(null), 3000);
         },
         error: (error: any) => {
@@ -135,10 +140,10 @@ export class Control implements OnInit {
           this.successMessage.set('Album created successfully');
           this.showEditor.set(false);
           this.editingAlbum.set(null);
+          this.selectedSlotForNew.set(null);
           this.isLoading.set(false);
           this.loadAlbums();
 
-          // Clear success message after 3 seconds
           setTimeout(() => this.successMessage.set(null), 3000);
         },
         error: (error: any) => {
@@ -158,23 +163,24 @@ export class Control implements OnInit {
   onEditorCanceled(): void {
     this.showEditor.set(false);
     this.editingAlbum.set(null);
+    this.selectedSlotForNew.set(null);
   }
 
   /**
-   * Select album to display
+   * Play (set as current album to display)
    */
-  selectAlbumForDisplay(album: Album): void {
+  playAlbum(album: Album): void {
     this.isLoading.set(true);
     this.albumService.setCurrentAlbum(album.id).subscribe({
       next: () => {
         this.currentAlbumId.set(album.id);
-        this.successMessage.set(`Now displaying: ${album.albumTitle}`);
+        this.successMessage.set(`Now playing: ${album.albumTitle}`);
         this.isLoading.set(false);
         setTimeout(() => this.successMessage.set(null), 3000);
       },
       error: (error) => {
-        console.error('Failed to set current album:', error);
-        this.errorMessage.set('Failed to set current album');
+        console.error('Failed to play album:', error);
+        this.errorMessage.set('Failed to play album');
         this.isLoading.set(false);
       }
     });
@@ -184,7 +190,7 @@ export class Control implements OnInit {
    * Delete album
    */
   deleteAlbum(album: Album): void {
-    if (!confirm(`Are you sure you want to delete "${album.albumTitle}"?`)) {
+    if (!confirm(`Are you sure you want to delete "${album.albumTitle}" from Disc Slot ${album.discNumber}?`)) {
       return;
     }
 
@@ -205,9 +211,9 @@ export class Control implements OnInit {
   }
 
   /**
-   * Get array of disc numbers 1-25 for grid iteration
+   * Get array of disc slots 1-25
    */
-  getDiscNumbers(): number[] {
+  getDiscSlots(): number[] {
     return Array.from({ length: 25 }, (_, i) => i + 1);
   }
 
