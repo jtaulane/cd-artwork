@@ -51,19 +51,6 @@
             </div>
           </div>
 
-          @if (isCurrentlyPlaying) {
-            <div class="now-playing-label">NOW PLAYING</div>
-          } @else {
-            <button 
-              class="play-button" 
-              (click)="playAlbum(album)"
-              title="Play this album"
-              aria-label="Play {{ album.albumTitle }}"
-            >
-              ▶
-            </button>
-          }
-
           <div class="slot-actions">
             <button 
               class="action-btn edit-btn" 
@@ -82,6 +69,19 @@
               ✕
             </button>
           </div>
+
+          @if (isCurrentlyPlaying) {
+            <div class="now-playing-label">NOW PLAYING</div>
+          } @else {
+            <button 
+              class="play-button" 
+              (click)="playAlbum(album)"
+              title="Play this album"
+              aria-label="Play {{ album.albumTitle }}"
+            >
+              PLAY
+            </button>
+          }
         } @else {
           <div class="empty-slot-content">
             <button 

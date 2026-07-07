@@ -10,19 +10,11 @@
         <div class="error-message">{{ errorMessage() }}</div>
       }
 
-      <div class="form-group">
-        <label for="discNumber">Disc Number (1-25) *</label>
-        <input
-          type="number"
-          id="discNumber"
-          [(ngModel)]="discNumber"
-          [value]="discNumber()"
-          (ngModelChange)="discNumber.set($event)"
-          min="1"
-          max="25"
-          required
-        />
-      </div>
+      @if (!album && selectedSlot) {
+        <div class="disc-slot-info">
+          <strong>Disc Slot: {{ selectedSlot }}</strong>
+        </div>
+      }
 
       <div class="form-group">
         <label for="albumTitle">Album Title *</label>
