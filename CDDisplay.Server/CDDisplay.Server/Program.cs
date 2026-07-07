@@ -39,6 +39,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Enable static file serving for images
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseCors("AngularApp");
