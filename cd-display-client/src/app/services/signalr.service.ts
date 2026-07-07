@@ -29,9 +29,16 @@ export class SignalrService {
     }
 
     const apiUrl = environment.apiUrl.replace(/\/$/, '');
+    const hubUrl = `${apiUrl}/api/displayHub`;
+
+    console.log('Initializing SignalR connection to:', hubUrl);
+
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(`${apiUrl}/api/displayHub`)
-      .withAutomaticReconnect()
+      .withUrl(hubUrl, {
+        withCredentials: true,  // Enable credentials for CORS
+        skipNegotiation: false   // Use negotiation
+      })
+      .withAutomaticReconnect([0, 1000, 3000, 5000, 10000])  // Reconnect with delays
       .configureLogging(LogLevel.Information)
       .build();
 
