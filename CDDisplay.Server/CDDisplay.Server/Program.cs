@@ -22,10 +22,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularApp", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .DisallowCredentials(); // SignalR doesn't use credentials for AllowAnyOrigin
+        policy.WithOrigins(
+                "http://localhost:4200",      // Angular dev server
+                "https://localhost:4200",     // HTTPS variant
+                "http://localhost:5243",      // Fallback ports
+                "https://localhost:7243"      // Backend itself
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
